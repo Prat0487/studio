@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useContext } from 'react';
@@ -47,7 +48,14 @@ export function OrderCustomizationDialog({ item, isOpen, onOpenChange }: OrderCu
         </DialogHeader>
         <div className="py-4 space-y-4">
           <div className="flex items-center gap-4">
-            <Image src={item.imageUrl} alt={item.name} width={100} height={100} className="rounded-md object-cover" data-ai-hint={item.dataAiHint || "food item"}/>
+            <Image 
+              src={`https://placehold.co/100x100.png`} 
+              alt={item.name} 
+              width={100} 
+              height={100} 
+              className="rounded-md object-cover" 
+              data-ai-hint={item.dataAiHint || "food item"}
+            />
             <div>
               <h3 className="text-lg font-semibold">{item.name}</h3>
               <p className="text-sm text-muted-foreground">{item.description}</p>

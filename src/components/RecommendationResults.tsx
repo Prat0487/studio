@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { PersonalizedRecommendationsOutput } from '@/ai/flows/personalized-recommendations'; // From Genkit type
@@ -57,12 +58,12 @@ export function RecommendationResults({ results, error }: RecommendationResultsP
             {recommendedItems.map((item) => (
               <Card key={item.itemId} className="overflow-hidden hover:shadow-xl transition-shadow">
                 <Image 
-                  src={`https://placehold.co/600x400.png`} // Replace with actual image if available
+                  src={`https://placehold.co/600x400.png`} 
                   alt={item.itemName} 
                   width={600} 
                   height={400} 
                   className="w-full h-40 object-cover"
-                  data-ai-hint="food item"
+                  data-ai-hint={item.dataAiHint || "food item"}
                 />
                 <CardContent className="p-4">
                   <h3 className="text-lg font-semibold">{item.itemName}</h3>
@@ -86,12 +87,12 @@ export function RecommendationResults({ results, error }: RecommendationResultsP
             {recommendedMeals.map((meal) => (
               <Card key={meal.mealName} className="overflow-hidden hover:shadow-xl transition-shadow">
                  <Image 
-                  src={`https://placehold.co/600x400.png`} // Generic meal image
+                  src={`https://placehold.co/600x400.png`}
                   alt={meal.mealName} 
                   width={600} 
                   height={400} 
                   className="w-full h-40 object-cover"
-                  data-ai-hint="meal platter"
+                  data-ai-hint={meal.dataAiHint || "meal platter"}
                 />
                 <CardContent className="p-4">
                   <h3 className="text-lg font-semibold">{meal.mealName}</h3>

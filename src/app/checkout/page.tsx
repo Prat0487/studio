@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useContext } from 'react';
@@ -48,7 +49,14 @@ export default function CheckoutPage() {
                 <div className="space-y-4">
                   {cart.map(item => (
                     <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg hover:shadow-md transition-shadow">
-                      <Image src={item.imageUrl} alt={item.name} width={80} height={80} className="rounded-md object-cover" data-ai-hint={item.dataAiHint || "food item"}/>
+                      <Image 
+                        src={`https://placehold.co/80x80.png`} 
+                        alt={item.name} 
+                        width={80} 
+                        height={80} 
+                        className="rounded-md object-cover" 
+                        data-ai-hint={item.dataAiHint || "food item"}
+                      />
                       <div className="flex-grow">
                         <h3 className="font-semibold">{item.name}</h3>
                         <p className="text-sm text-muted-foreground">${item.price.toFixed(2)} each</p>

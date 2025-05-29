@@ -4,7 +4,7 @@ export interface Restaurant {
   name: string;
   cuisine: string;
   rating: number;
-  imageUrl: string;
+  imageUrl: string; // Stays, as it's consistently 600x400 or fill
   dataAiHint?: string;
   menu: MenuItem[];
   popularityIndex: number; // Higher is more popular
@@ -15,8 +15,8 @@ export interface MenuItem {
   name:string;
   description: string;
   price: number;
-  imageUrl: string;
-  dataAiHint?: string;
+  // imageUrl: string; // Removed, will be generated in components
+  dataAiHint?: string; // Stays, important for hints
   customizable?: boolean;
   restaurantId: string; // To know which restaurant it belongs to
 }
@@ -41,3 +41,4 @@ export interface OrderHistoryEntry {
   items: string[]; // item names or ids
   timestamp: string; // ISO date string
 }
+

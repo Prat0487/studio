@@ -1,3 +1,4 @@
+
 // use server'
 
 /**
@@ -36,6 +37,7 @@ const PersonalizedRecommendationsOutputSchema = z.object({
       itemName: z.string().describe('The name of the recommended item.'),
       restaurantId: z.string().describe('The ID of the restaurant.'),
       description: z.string().describe('The description of the item.'),
+      dataAiHint: z.string().describe('Two keywords for a placeholder image based on the item name and description, e.g., "pasta carbonara" or "avocado toast".'),
     })
   ).describe('A list of recommended items.'),
   recommendedMeals: z.array(
@@ -44,6 +46,7 @@ const PersonalizedRecommendationsOutputSchema = z.object({
       items: z.array(z.string()).describe('List of item IDs in the meal.'),
       restaurantId: z.string().describe('The ID of the restaurant.'),
       description: z.string().describe('The description of the meal.'),
+      dataAiHint: z.string().describe('Two keywords for a placeholder image based on the meal name, e.g., "sushi platter" or "burger combo".'),
     })
   ).describe('A list of recommended meals.'),
 });
@@ -71,7 +74,9 @@ const prompt = ai.definePrompt({
   Personal Preferences: {{{personalPreferences}}}
 
   Based on the information above, provide a list of recommended items and meals
-  that the user would enjoy.`,
+  that the user would enjoy. For each recommended item and meal, also provide a
+  'dataAiHint' consisting of two descriptive keywords suitable for finding a placeholder image
+  (e.g., "sushi salmon", "pasta dish", "meal platter", "combo deal").`,
 });
 
 const personalizedRecommendationsFlow = ai.defineFlow(

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -35,7 +36,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
       <Card className="flex flex-col overflow-hidden h-full transition-all duration-300 ease-in-out hover:shadow-lg">
         <CardHeader className="p-0 relative">
           <Image
-            src={item.imageUrl}
+            src={`https://placehold.co/400x250.png`}
             alt={item.name}
             width={400}
             height={250}

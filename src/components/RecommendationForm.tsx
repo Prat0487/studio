@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState }  from 'react';
@@ -9,7 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import type { OrderHistoryEntry, PersonalizedRecommendationsOutput } from '@/types'; // PersonalizedRecommendationsOutput is from Genkit
+import type { OrderHistoryEntry } from '@/types';
+import type { PersonalizedRecommendationsOutput } from '@/ai/flows/personalized-recommendations';
 import { getAIRecommendationsAction } from '@/lib/actions';
 import { mockOrderHistory } from '@/lib/data'; // For pre-filling
 import { Loader2 } from 'lucide-react';
