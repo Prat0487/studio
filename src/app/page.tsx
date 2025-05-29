@@ -1,17 +1,21 @@
-import { restaurants } from '@/lib/data';
+
+'use client';
+
+import { useState, useMemo } from 'react';
+import type { Restaurant } from '@/types';
+import { restaurants as allRestaurants } from '@/lib/data';
 import { RestaurantCard } from '@/components/RestaurantCard';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
-import { Search,SlidersHorizontal } from 'lucide-react';
-
-// This page will be a server component by default.
-// Filtering/Sorting would ideally be server-side, but for simplicity, we'll mock client-side controls.
-// For a real app, these would trigger re-fetches or use query params.
+import { Search, SlidersHorizontal } from 'lucide-react';
 
 export default function HomePage() {
-  // Mock: In a real app, these would come from state and affect the `restaurants` list.
-  const cuisines = ['All', ...new Set(restaurants.map(r => r.cuisine))];
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCuisine, setSelectedCuisine] = useState('All');
+  const [selectedSort, setSelectedSort] = useState('popularity');
+
+  const cuisines = useMemo(() => ['All', ...new Set(allRestaurants.map(r => r.cuisine))], []);
   const sortOptions = [
     { value: 'popularity', label: 'Popularity' },
     { value: 'rating', label: 'Rating' },
@@ -19,10 +23,45 @@ export default function HomePage() {
     { value: 'name_desc', label: 'Name (Z-A)' },
   ];
 
-  // TODO: Implement actual filtering and sorting logic if this were a client component
-  // or pass params to server for server-side logic.
-  // For now, display all restaurants.
-  const displayedRestaurants = restaurants;
+  const displayedRestaurants = useMemo(() => {
+    let filteredRestaurants = [...allRestaurants];
+
+    // Filter by search term
+    if (searchTerm) {
+      filteredRestaurants = filteredRestaurants.filter(restaurant =>
+        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by cuisine
+    if (selectedCuisine !== 'All') {
+      filteredRestaurants = filteredRestaurants.filter(restaurant =>
+        restaurant.cuisine === selectedCuisine
+      );
+    }
+
+    // Sort restaurants
+    switch (selectedSort) {
+      case 'popularity':
+        // Assuming higher popularityIndex means more popular
+        filteredRestaurants.sort((a, b) => b.popularityIndex - a.popularityIndex);
+        break;
+      case 'rating':
+        filteredRestaurants.sort((a, b) => b.rating - a.rating);
+        break;
+      case 'name_asc':
+        filteredRestaurants.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name_desc':
+        filteredRestaurants.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      default:
+        break;
+    }
+
+    return filteredRestaurants;
+  }, [searchTerm, selectedCuisine, selectedSort]);
 
   return (
     <div className="space-y-8">
@@ -34,10 +73,19 @@ export default function HomePage() {
       <div className="p-6 bg-card rounded-lg shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
           <div className="relative">
-            <Input type="search" placeholder="Search restaurants or cuisines..." className="pl-10 text-base h-12" />
+            <Input 
+              type="search" 
+              placeholder="Search restaurants or cuisines..." 
+              className="pl-10 text-base h-12" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           </div>
-          <Select defaultValue="All">
+          <Select 
+            value={selectedCuisine}
+            onValueChange={setSelectedCuisine}
+          >
             <SelectTrigger className="text-base h-12">
               <SelectValue placeholder="Filter by Cuisine" />
             </SelectTrigger>
@@ -47,7 +95,10 @@ export default function HomePage() {
               ))}
             </SelectContent>
           </Select>
-          <Select defaultValue="popularity">
+          <Select 
+            value={selectedSort}
+            onValueChange={setSelectedSort}
+          >
             <SelectTrigger className="text-base h-12">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
@@ -57,9 +108,14 @@ export default function HomePage() {
               ))}
             </SelectContent>
           </Select>
-          {/* <Button className="md:col-span-1 h-12 text-base">
+          {/* 
+          <Button 
+            className="md:col-span-1 h-12 text-base"
+            // onClick={() => { /* This button could trigger a more complex filter modal or apply all filters if needed */ }}
+          >
             <SlidersHorizontal className="mr-2 h-5 w-5" /> Apply Filters
-          </Button> */}
+          </Button> 
+          */}
         </div>
       </div>
       
@@ -67,7 +123,7 @@ export default function HomePage() {
         <h2 className="text-3xl font-semibold mb-6 text-center">Explore Restaurants</h2>
         {displayedRestaurants.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {displayedRestaurants.map((restaurant) => (
+            {displayedRestaurants.map((restaurant: Restaurant) => (
               <RestaurantCard key={restaurant.id} restaurant={restaurant} />
             ))}
           </div>
