@@ -4,18 +4,29 @@
 import { useState, useMemo } from 'react';
 import type { Restaurant } from '@/types';
 import { restaurants as allRestaurants } from '@/lib/data';
-import { RestaurantCard } from '@/components/RestaurantCard';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from '@/components/ui/button';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { RestaurantCard } from '@/components/RestaurantCard'; // Added missing import
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCuisine, setSelectedCuisine] = useState('All');
   const [selectedSort, setSelectedSort] = useState('popularity');
 
-  const cuisines = useMemo(() => ['All', ...new Set(allRestaurants.map(r => r.cuisine))], []);
+  const cuisines = useMemo(() => {
+    if (!Array.isArray(allRestaurants) || allRestaurants.length === 0) {
+        console.warn("allRestaurants is not a valid array or is empty. Check data.ts.");
+        return ['All'];
+    }
+    const cuisineSet = new Set(
+        allRestaurants
+            .map(r => r.cuisine)
+            .filter(cuisine => typeof cuisine === 'string' && cuisine.trim() !== '')
+    );
+    return ['All', ...Array.from(cuisineSet)]; // Ensure 'All' is present and convert Set to Array
+  }, []);
+
   const sortOptions = [
     { value: 'popularity', label: 'Popularity' },
     { value: 'rating', label: 'Rating' },
@@ -24,44 +35,48 @@ export default function HomePage() {
   ];
 
   const displayedRestaurants = useMemo(() => {
+    if (!Array.isArray(allRestaurants)) {
+        console.warn("allRestaurants is not an array or is undefined. Check data.ts.");
+        return [];
+    }
+
     let filteredRestaurants = [...allRestaurants];
 
-    // Filter by search term
     if (searchTerm) {
+      const lowerSearchTerm = searchTerm.toLowerCase();
       filteredRestaurants = filteredRestaurants.filter(restaurant =>
-        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
+        (restaurant.name?.toLowerCase().includes(lowerSearchTerm) ?? false) ||
+        (restaurant.cuisine?.toLowerCase().includes(lowerSearchTerm) ?? false)
       );
     }
 
-    // Filter by cuisine
-    if (selectedCuisine !== 'All') {
+    if (selectedCuisine && selectedCuisine !== 'All') {
       filteredRestaurants = filteredRestaurants.filter(restaurant =>
         restaurant.cuisine === selectedCuisine
       );
     }
 
-    // Sort restaurants
+    const sortedRestaurants = [...filteredRestaurants];
+
     switch (selectedSort) {
       case 'popularity':
-        // Assuming higher popularityIndex means more popular
-        filteredRestaurants.sort((a, b) => b.popularityIndex - a.popularityIndex);
+        sortedRestaurants.sort((a, b) => (b.popularityIndex ?? 0) - (a.popularityIndex ?? 0));
         break;
       case 'rating':
-        filteredRestaurants.sort((a, b) => b.rating - a.rating);
+        sortedRestaurants.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
         break;
       case 'name_asc':
-        filteredRestaurants.sort((a, b) => a.name.localeCompare(b.name));
+        sortedRestaurants.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
         break;
       case 'name_desc':
-        filteredRestaurants.sort((a, b) => b.name.localeCompare(a.name));
+        sortedRestaurants.sort((a, b) => (b.name ?? "").localeCompare(a.name ?? ""));
         break;
       default:
         break;
     }
-
-    return filteredRestaurants;
+    return sortedRestaurants;
   }, [searchTerm, selectedCuisine, selectedSort]);
+
 
   return (
     <div className="space-y-8">
@@ -73,20 +88,21 @@ export default function HomePage() {
       <div className="p-6 bg-card rounded-lg shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
           <div className="relative">
-            <Input 
-              type="search" 
-              placeholder="Search restaurants or cuisines..." 
-              className="pl-10 text-base h-12" 
+            <Input
+              type="search"
+              placeholder="Search restaurants or cuisines..."
+              className="pl-10 text-base h-12"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              aria-label="Search restaurants or cuisines"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           </div>
-          <Select 
+          <Select
             value={selectedCuisine}
             onValueChange={setSelectedCuisine}
           >
-            <SelectTrigger className="text-base h-12">
+            <SelectTrigger className="text-base h-12" aria-label="Filter by Cuisine">
               <SelectValue placeholder="Filter by Cuisine" />
             </SelectTrigger>
             <SelectContent>
@@ -95,11 +111,11 @@ export default function HomePage() {
               ))}
             </SelectContent>
           </Select>
-          <Select 
+          <Select
             value={selectedSort}
             onValueChange={setSelectedSort}
           >
-            <SelectTrigger className="text-base h-12">
+            <SelectTrigger className="text-base h-12" aria-label="Sort by">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -108,17 +124,9 @@ export default function HomePage() {
               ))}
             </SelectContent>
           </Select>
-          {/* 
-          <Button 
-            className="md:col-span-1 h-12 text-base"
-            // onClick={() => { /* This button could trigger a more complex filter modal or apply all filters if needed */ }}
-          >
-            <SlidersHorizontal className="mr-2 h-5 w-5" /> Apply Filters
-          </Button> 
-          */}
         </div>
       </div>
-      
+
       <section>
         <h2 className="text-3xl font-semibold mb-6 text-center">Explore Restaurants</h2>
         {displayedRestaurants.length > 0 ? (
